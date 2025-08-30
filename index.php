@@ -42,8 +42,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (strpos($message, '/topic ') === 0) {
             $new_topic = trim(substr($message, 7));
             if (!empty($new_topic)) {
+                // /topicコマンドを処理
                 callSupabaseApi('PATCH', 'topics', ['content' => $new_topic], 'id=eq.1');
             }
+        } else if ($message === '/clear') {
+            // /clearコマンドを処理
+            callSupabaseApi('DELETE', 'posts', null, 'delete_all=true');
         } else {
             // 通常の投稿をSupabaseに挿入
             callSupabaseApi('POST', 'posts', [
@@ -84,6 +88,8 @@ function callSupabaseApi($method, $table, $data = null, $query = '') {
     } elseif ($method === 'PATCH') {
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    } elseif ($method === 'DELETE') {
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
     }
     
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -137,7 +143,13 @@ $current_topic = $topic_data[0]['content'] ?? '今の話題';
                 @<?php echo htmlspecialchars($post['user_id'] ?? ''); ?>
                 　<?php echo nl2br(htmlspecialchars($post['message'])); ?>
             </p>
-            <small>投稿日時: <?php echo $post['created_at']; ?></small>
+            <small>投稿日時: 
+                <?php 
+                    $utc_time = new DateTime($post['created_at']);
+                    $utc_time->setTimezone(new DateTimeZone('Asia/Tokyo'));
+                    echo $utc_time->format('Y-m-d H:i:s');
+                ?>
+            </small>
         </div>
     <?php endforeach; ?>
 </body>
