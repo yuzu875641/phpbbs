@@ -136,13 +136,12 @@ $post_count = count($posts_data);
             align-items: center;
             margin-bottom: 5px;
         }
-        .post-header span {
-            padding: 2px 5px;
-            border-radius: 3px;
+        .post-meta {
             margin-right: 10px;
         }
         .post-message {
             margin: 0;
+            white-space: pre-wrap; /* 複数行のメッセージを正しく表示 */
         }
     </style>
 </head>
@@ -164,10 +163,8 @@ $post_count = count($posts_data);
         <?php $display_id = $post_count; ?>
         <?php foreach ($posts_data as $post): ?>
             <div class="post">
-                <div class="post-header">
-                    <span>No.<?php echo $display_id; ?></span>
-                    <span><?php echo htmlspecialchars($post['username']); ?>@<?php echo htmlspecialchars($post['user_id'] ?? ''); ?></span>
-                </div>
+                <span class="post-meta">No.<?php echo $display_id; ?> |</span>
+                <span class="post-meta"><?php echo htmlspecialchars($post['username']); ?>@<?php echo htmlspecialchars($post['user_id'] ?? ''); ?> |</span>
                 <p class="post-message"><?php echo nl2br(htmlspecialchars($post['message'])); ?></p>
                 <small>投稿日時: 
                     <?php 
@@ -186,8 +183,8 @@ $post_count = count($posts_data);
             event.preventDefault();
             
             const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = true;
-            setTimeout(() => { submitBtn.disabled = false; }, 5000);
+            submitBtn.disabled = true; // ボタンを無効化
+            setTimeout(() => { submitBtn.disabled = false; }, 5000); // 5秒後に有効化
 
             const form = event.target;
             const formData = new FormData(form);
@@ -220,10 +217,8 @@ $post_count = count($posts_data);
                         const formattedTime = jstTime.toISOString().slice(0, 19).replace('T', ' ');
                         
                         postElement.innerHTML = `
-                            <div class="post-header">
-                                <span>No.${displayId}</span>
-                                <span>${post.username}@${post.user_id || ''}</span>
-                            </div>
+                            <span class="post-meta">No.${displayId} |</span>
+                            <span class="post-meta">${post.username}@${post.user_id || ''} |</span>
                             <p class="post-message">${post.message.replace(/\n/g, '<br>')}</p>
                             <small>投稿日時: ${formattedTime}</small>
                         `;
