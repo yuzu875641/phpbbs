@@ -113,16 +113,28 @@ $posts_data = $posts_data_response['data'] ?? [];
 $topic_data_response = callSupabaseApi('GET', 'topics');
 $topic_data = $topic_data_response['data'] ?? [];
 $current_topic = $topic_data[0]['content'] ?? '今の話題';
+
+// 投稿番号を1から連番で表示するための処理
+$post_count = count($posts_data);
 ?>
 <!doctype html>
 <html lang="ja">
 <head>
     <meta charset="utf-8">
-    <title>PHP BBS</title>
+    <title>PHP/Supabase 掲示板</title>
     <style>
         body { font-family: sans-serif; }
         .post { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
         h1 small { color: #555; font-size: 0.5em; }
+        .post-meta {
+            font-weight: bold;
+            display: flex;
+            gap: 10px;
+        }
+        .post-meta span {
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
@@ -140,14 +152,14 @@ $current_topic = $topic_data[0]['content'] ?? '今の話題';
 
     <h2>投稿一覧</h2>
     <div id="posts-list">
+        <?php $display_id = $post_count; ?>
         <?php foreach ($posts_data as $post): ?>
             <div class="post">
-                <p>
-                    <strong><?php echo htmlspecialchars($post['id']); ?></strong>
-                    　<strong><?php echo htmlspecialchars($post['username']); ?></strong>
-                    @<?php echo htmlspecialchars($post['user_id'] ?? ''); ?>
-                    　<?php echo nl2br(htmlspecialchars($post['message'])); ?>
-                </p>
+                <div class="post-meta">
+                    <span>No.<?php echo $display_id; ?></span>
+                    <span><?php echo htmlspecialchars($post['username']); ?>@<?php echo htmlspecialchars($post['user_id'] ?? ''); ?></span>
+                </div>
+                <p><?php echo nl2br(htmlspecialchars($post['message'])); ?></p>
                 <small>投稿日時: 
                     <?php 
                         $utc_time = new DateTime($post['created_at']);
@@ -156,6 +168,7 @@ $current_topic = $topic_data[0]['content'] ?? '今の話題';
                     ?>
                 </small>
             </div>
+        <?php $display_id--; ?>
         <?php endforeach; ?>
     </div>
 
@@ -164,8 +177,8 @@ $current_topic = $topic_data[0]['content'] ?? '今の話題';
             event.preventDefault();
             
             const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = true; // ボタンを無効化
-            setTimeout(() => { submitBtn.disabled = false; }, 1000); // 5秒後に有効化
+            submitBtn.disabled = true;
+            setTimeout(() => { submitBtn.disabled = false; }, 5000);
 
             const form = event.target;
             const formData = new FormData(form);
@@ -189,6 +202,7 @@ $current_topic = $topic_data[0]['content'] ?? '今の話題';
                 if (result.posts) {
                     const postsList = document.getElementById('posts-list');
                     postsList.innerHTML = '';
+                    let displayId = result.posts.length;
                     result.posts.forEach(post => {
                         const postElement = document.createElement('div');
                         postElement.className = 'post';
@@ -197,15 +211,15 @@ $current_topic = $topic_data[0]['content'] ?? '今の話題';
                         const formattedTime = jstTime.toISOString().slice(0, 19).replace('T', ' ');
                         
                         postElement.innerHTML = `
-                            <p>
-                                <strong>${post.id}</strong>
-                                　<strong>${post.username}</strong>
-                                @${post.user_id || ''}
-                                　${post.message.replace(/\n/g, '<br>')}
-                            </p>
+                            <div class="post-meta">
+                                <span>No.${displayId}</span>
+                                <span>${post.username}@${post.user_id || ''}</span>
+                            </div>
+                            <p>${post.message.replace(/\n/g, '<br>')}</p>
                             <small>投稿日時: ${formattedTime}</small>
                         `;
                         postsList.appendChild(postElement);
+                        displayId--;
                     });
                 }
                 if (result.topic) {
@@ -214,20 +228,27 @@ $current_topic = $topic_data[0]['content'] ?? '今の話題';
                 
                 // 投稿後のフォームをリセット
                 form.querySelector('[name="message"]').value = '';
-
+                
                 // シード値が変更されていないか確認し、フォームを更新
                 const seedInput = form.querySelector('[name="seed"]');
                 const usernameInput = form.querySelector('[name="username"]');
                 if (seedInput.value === data.seed) {
-                    seedInput.value = data.seed; // 同じ値を再設定
-                    usernameInput.value = data.username; // 名前も再設定
+                    seedInput.value = data.seed;
+                    usernameInput.value = data.username;
                 }
-
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('投稿に失敗しました。');
             });
+        });
+
+        // Enterキーでの投稿を有効にする
+        document.querySelector('textarea[name="message"]').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('post-form').dispatchEvent(new Event('submit'));
+            }
         });
     </script>
 </body>
