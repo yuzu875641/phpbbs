@@ -131,7 +131,12 @@ $current_topic = $topic_data[0]['content'] ?? '今の話題';
     <h2>投稿一覧</h2>
     <?php foreach ($posts_data as $post): ?>
         <div class="post">
-            <p><strong><?php echo htmlspecialchars($post['id']); ?></strong>　<strong><?php echo htmlspecialchars($post['username']); ?></strong>@<?php echo htmlspecialchars($post['user_id']); ?>　<?php echo nl2br(htmlspecialchars($post['message'])); ?></p>
+            <p>
+                <strong><?php echo htmlspecialchars($post['id']); ?></strong>
+                　<strong><?php echo htmlspecialchars($post['username']); ?></strong>
+                @<?php echo htmlspecialchars($post['user_id'] ?? ''); ?>
+                　<?php echo nl2br(htmlspecialchars($post['message'])); ?>
+            </p>
             <small>投稿日時: <?php echo $post['created_at']; ?></small>
         </div>
     <?php endforeach; ?>
