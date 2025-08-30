@@ -118,7 +118,7 @@ $current_topic = $topic_data[0]['content'] ?? '今の話題';
 <html lang="ja">
 <head>
     <meta charset="utf-8">
-    <title>PHP/Supabase 掲示板</title>
+    <title>PHP BBS</title>
     <style>
         body { font-family: sans-serif; }
         .post { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
@@ -165,7 +165,7 @@ $current_topic = $topic_data[0]['content'] ?? '今の話題';
             
             const submitBtn = document.getElementById('submit-btn');
             submitBtn.disabled = true; // ボタンを無効化
-            setTimeout(() => { submitBtn.disabled = false; }, 5000); // 5秒後に有効化
+            setTimeout(() => { submitBtn.disabled = false; }, 1000); // 5秒後に有効化
 
             const form = event.target;
             const formData = new FormData(form);
