@@ -4,8 +4,9 @@ FROM php:8.1-apache
 # 必要なPostgreSQLとcURLのクライアントライブラリをインストール
 RUN apt-get update && apt-get install -y libpq-dev libcurl4-openssl-dev
 
-# 必要なPHP拡張機能をインストール
-RUN docker-php-ext-install pdo_pgsql curl
+# 必要なPHP拡張機能を個別にインストール
+RUN docker-php-ext-install pdo_pgsql
+RUN docker-php-ext-install curl
 
 # 動作するディレクトリを/var/www/htmlに設定
 WORKDIR /var/www/html
