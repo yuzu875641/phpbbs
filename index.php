@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['HTTP_X_REQUESTED_WI
     $current_topic = $topic_data['data'][0]['content'] ?? '今の話題';
     
     header('Content-Type: application/json');
-    echo json_encode(['posts' => $posts_data['data'], 'topic' => $current_topic]);
+    echo json_encode(['posts' => $posts_data['data'], 'topic' => $current_topic, 'username' => $username, 'seed' => $seed]);
     exit();
 }
 
@@ -211,7 +211,18 @@ $current_topic = $topic_data[0]['content'] ?? '今の話題';
                 if (result.topic) {
                     document.getElementById('current-topic').textContent = result.topic;
                 }
-                form.reset();
+                
+                // 投稿後のフォームをリセット
+                form.querySelector('[name="message"]').value = '';
+
+                // シード値が変更されていないか確認し、フォームを更新
+                const seedInput = form.querySelector('[name="seed"]');
+                const usernameInput = form.querySelector('[name="username"]');
+                if (seedInput.value === data.seed) {
+                    seedInput.value = data.seed; // 同じ値を再設定
+                    usernameInput.value = data.username; // 名前も再設定
+                }
+
             })
             .catch(error => {
                 console.error('Error:', error);
