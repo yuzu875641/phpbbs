@@ -1,8 +1,8 @@
 <?php
 // SupabaseのURLとAPIキー
 // TODO: ここをあなたのSupabaseプロジェクト情報に置き換えてください
-$SUPABASE_URL = 'https://your-project-ref.supabase.co';
-$SUPABASE_KEY = 'your-anon-key';
+$SUPABASE_URL = 'https://llncfkbphrjienfnyebi.supabase.co';
+$SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsbmNma2JwaHJqaWVuZm55ZWJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzODI1NjksImV4cCI6MjA3MTk1ODU2OX0.gvbG57EHd6QVG5PLiKGewM_FZNj_Wb97lfZWjkWiF5s';
 
 // REST APIを呼び出す関数
 function callSupabaseApi($method, $table, $data = null, $query = '') {
