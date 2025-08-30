@@ -124,16 +124,25 @@ $post_count = count($posts_data);
     <title>PHP/Supabase 掲示板</title>
     <style>
         body { font-family: sans-serif; }
-        .post { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+        .post { 
+            border: 1px solid #ccc; 
+            padding: 10px; 
+            margin-bottom: 10px;
+        }
         h1 small { color: #555; font-size: 0.5em; }
-        .post-meta {
+        .post-header {
             font-weight: bold;
             display: flex;
-            gap: 10px;
+            align-items: center;
+            margin-bottom: 5px;
         }
-        .post-meta span {
+        .post-header span {
             padding: 2px 5px;
             border-radius: 3px;
+            margin-right: 10px;
+        }
+        .post-message {
+            margin: 0;
         }
     </style>
 </head>
@@ -155,11 +164,11 @@ $post_count = count($posts_data);
         <?php $display_id = $post_count; ?>
         <?php foreach ($posts_data as $post): ?>
             <div class="post">
-                <div class="post-meta">
+                <div class="post-header">
                     <span>No.<?php echo $display_id; ?></span>
                     <span><?php echo htmlspecialchars($post['username']); ?>@<?php echo htmlspecialchars($post['user_id'] ?? ''); ?></span>
                 </div>
-                <p><?php echo nl2br(htmlspecialchars($post['message'])); ?></p>
+                <p class="post-message"><?php echo nl2br(htmlspecialchars($post['message'])); ?></p>
                 <small>投稿日時: 
                     <?php 
                         $utc_time = new DateTime($post['created_at']);
@@ -211,11 +220,11 @@ $post_count = count($posts_data);
                         const formattedTime = jstTime.toISOString().slice(0, 19).replace('T', ' ');
                         
                         postElement.innerHTML = `
-                            <div class="post-meta">
+                            <div class="post-header">
                                 <span>No.${displayId}</span>
                                 <span>${post.username}@${post.user_id || ''}</span>
                             </div>
-                            <p>${post.message.replace(/\n/g, '<br>')}</p>
+                            <p class="post-message">${post.message.replace(/\n/g, '<br>')}</p>
                             <small>投稿日時: ${formattedTime}</small>
                         `;
                         postsList.appendChild(postElement);
