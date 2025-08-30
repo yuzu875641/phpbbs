@@ -1,12 +1,17 @@
 <?php
-// SupabaseのURLとAPIキー
-// TODO: ここをあなたのSupabaseプロジェクト情報に置き換えてください
-$SUPABASE_URL = 'https://llncfkbphrjienfnyebi.supabase.co';
-$SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsbmNma2JwaHJqaWVuZm55ZWJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzODI1NjksImV4cCI6MjA3MTk1ODU2OX0.gvbG57EHd6QVG5PLiKGewM_FZNj_Wb97lfZWjkWiF5s';
+// 環境変数からSupabaseのURLとAPIキーを取得
+$SUPABASE_URL = getenv('SUPABASE_URL');
+$SUPABASE_KEY = getenv('SUPABASE_KEY');
 
 // REST APIを呼び出す関数
 function callSupabaseApi($method, $table, $data = null, $query = '') {
     global $SUPABASE_URL, $SUPABASE_KEY;
+    
+    // 環境変数が設定されていない場合はエラーを返す
+    if (!$SUPABASE_URL || !$SUPABASE_KEY) {
+        die("Supabase環境変数が設定されていません。");
+    }
+
     $url = "$SUPABASE_URL/rest/v1/$table?$query";
     $ch = curl_init($url);
     
@@ -41,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $remember_me = isset($_POST['remember_me']);
 
     if (!empty($username) && !empty($seed) && !empty($message)) {
-        // シード値をSHA-256でハッシュ化
+        // シード値をSHA-256でハッシュ化し、最初の7文字をユーザーIDとする
         $hashed_seed = hash('sha256', $seed);
         $user_id = substr($hashed_seed, 0, 7);
 
@@ -84,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
-    // リダイレクト
+    // 投稿後にリダイレクト
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }
