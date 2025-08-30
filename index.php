@@ -3,42 +3,7 @@
 $SUPABASE_URL = getenv('SUPABASE_URL');
 $SUPABASE_KEY = getenv('SUPABASE_KEY');
 
-// REST APIを呼び出す関数
-function callSupabaseApi($method, $table, $data = null, $query = '') {
-    global $SUPABASE_URL, $SUPABASE_KEY;
-    
-    // 環境変数が設定されていない場合はエラーを返す
-    if (!$SUPABASE_URL || !$SUPABASE_KEY) {
-        die("Supabase環境変数が設定されていません。");
-    }
-
-    $url = "$SUPABASE_URL/rest/v1/$table?$query";
-    $ch = curl_init($url);
-    
-    $headers = [
-        'apikey: ' . $SUPABASE_KEY,
-        'Authorization: Bearer ' . $SUPABASE_KEY,
-        'Content-Type: application/json',
-        'Prefer: return=representation'
-    ];
-    
-    if ($method === 'POST') {
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    } elseif ($method === 'PATCH') {
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    }
-    
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    
-    $response = curl_exec($ch);
-    curl_close($ch);
-    return json_decode($response, true);
-}
-
-// 投稿フォームからのPOSTリクエストを処理
+// setcookie()はHTML出力前に実行する必要があるため、POSTリクエストの処理を最初に配置
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $seed = $_POST['seed'] ?? '';
@@ -94,6 +59,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 
+// REST APIを呼び出す関数
+function callSupabaseApi($method, $table, $data = null, $query = '') {
+    global $SUPABASE_URL, $SUPABASE_KEY;
+    
+    // 環境変数が設定されていない場合はエラーを返す
+    if (!$SUPABASE_URL || !$SUPABASE_KEY) {
+        die("Supabase環境変数が設定されていません。");
+    }
+
+    $url = "$SUPABASE_URL/rest/v1/$table?$query";
+    $ch = curl_init($url);
+    
+    $headers = [
+        'apikey: ' . $SUPABASE_KEY,
+        'Authorization: Bearer ' . $SUPABASE_KEY,
+        'Content-Type: application/json',
+        'Prefer: return=representation'
+    ];
+    
+    if ($method === 'POST') {
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    } elseif ($method === 'PATCH') {
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    }
+    
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    
+    $response = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($response, true);
+}
+
 // Cookieからユーザー情報を取得
 $saved_username = $_COOKIE['username'] ?? '';
 $saved_hashed_seed = $_COOKIE['hashed_seed'] ?? '';
@@ -121,7 +121,7 @@ $current_topic = $topic_data[0]['content'] ?? '今の話題';
     <form action="" method="post">
         <p>名前: <input type="text" name="username" value="<?php echo htmlspecialchars($saved_username); ?>" required></p>
         <p>シード値: <input type="password" name="seed" required></p>
-        <p><input type="checkbox" name="remember_me"> 名前とパスワードを保存する</p>
+        <p><input type="checkbox" name="remember_me" <?php echo isset($_COOKIE['username']) ? 'checked' : ''; ?>> 名前とパスワードを保存する</p>
         <p>メッセージ: <br><textarea name="message" rows="5" cols="40" required></textarea></p>
         <p><input type="submit" value="投稿"></p>
     </form>
